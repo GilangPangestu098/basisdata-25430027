@@ -19,6 +19,7 @@ Dari wawancara, ada tiga masalah yang menunjukkan kebutuhan data: harga barang s
 | PB-03 | Memesan barang ke pemasok | Petugas gudang | Stok di bawah batas minimum |
 | PB-04 | Menerima barang dari pemasok | Petugas gudang | Barang datang bersama faktur |
 | PB-05 | Menyusun laporan bulanan | Ketua koperasi | Awal bulan |
+| PB-06 | Menukar poin pada penjualan | Kasir (atas pilihan anggota) | Anggota aktif dengan saldo minimal 50 poin memilih menukar poin saat membayar |
 
 ## 3. Dokumen sumber yang dianalisis
 
