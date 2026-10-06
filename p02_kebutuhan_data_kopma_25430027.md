@@ -47,7 +47,7 @@ Dari 13 isian pada nota, 8 disimpan (termasuk tiga relasi ke petugas, anggota, d
 | Entitas kandidat | Elemen data utama | Sumber |
 |------------------|-------------------|--------|
 | Anggota | nomor anggota, NIM, nama, program studi, nomor HP, status aktif | Formulir pendaftaran |
-| Barang | kode, nama, kategori, harga jual, stok, batas minimum stok | Daftar barang, faktur |
+| Barang | kode_barang, nama_barang, kategori, harga jual, stok, batas minimum stok | Daftar barang, faktur |
 | Penjualan | nomor nota, tanggal-jam, kasir, anggota (opsional), bayar | Nota penjualan |
 | Detail penjualan | nomor nota, barang, qty, harga saat transaksi | Nota penjualan |
 | Petugas | kode petugas, nama, peran (kasir/gudang/ketua) | Wawancara |
@@ -139,6 +139,17 @@ Cuplikan kamus data awal Kopma. Kolom penanggung jawab menunjukkan siapa yang be
 - **Volume:** perkiraan sekitar 150 nota per hari.
 - **Retensi:** data transaksi disimpan minimal lima tahun.
 - **Privasi:** nomor HP anggota hanya boleh dilihat oleh ketua. Pembatasan akses data pribadi seperti ini sejalan dengan kewajiban pengendali data dalam Undang-Undang Pelindungan Data Pribadi.
+
+### Pernyataan kebutuhan yang telah diperbaiki (Latihan E.2)
+
+- **(a) "data anggota harus aman"**
+  `no_hp_anggota` hanya boleh dilihat oleh ketua koperasi. Kasir boleh memasukkan `no_hp_anggota` saat proses PB-01 (mendaftarkan anggota), tetapi tidak boleh melihat nomor HP anggota yang sudah terdaftar. Petugas gudang tidak boleh melihat `no_hp_anggota`. Pengubahan `no_hp_anggota` setelah anggota terdaftar hanya boleh dilakukan oleh ketua. Pengujian dilakukan dengan login sebagai ketua, kasir, dan petugas gudang, lalu mencoba memasukkan, melihat, dan mengubah `no_hp_anggota`. Kebutuhan terpenuhi jika: ketua berhasil melihat dan mengubah; kasir berhasil memasukkan nomor HP saat PB-01; dan kasir serta petugas gudang ditolak saat melihat, serta ditolak saat mengubah.
+
+- **(b) "sistem harus cepat mencari barang"**
+  Saat proses PB-02, kasir dapat mencari barang berdasarkan `kode_barang` atau sebagian kata dari `nama_barang`, dengan waktu maksimal 2 detik yang dihitung sejak kasir menekan Enter sampai hasil pencarian tampil di layar. Pengujian dilakukan pada basis data dengan asumsi 1.000 barang, menggunakan 20 pencarian yang terdiri dari 10 pencarian berdasarkan kode dan 10 berdasarkan sebagian kata dari nama. Kebutuhan terpenuhi jika seluruh pencarian selesai dalam waktu maksimal 2 detik.
+
+- **(c) "laporan stok harus akurat"**
+  `stok_barang` pada data Barang harus sama dengan hasil perhitungan mulai dari stok awal pada awal hari, ditambah seluruh penerimaan barang PB-04 dan dikurangi seluruh penjualan PB-02 sampai pemeriksaan stok setiap sore; selisih yang diizinkan adalah 0. Pengujian dilakukan oleh petugas gudang setiap sore dengan mengambil sampel 20 barang dari seluruh data Barang, kemudian membandingkan `stok_barang` dengan hasil perhitungan dan memeriksa bahwa semua barang dengan `stok_barang` kurang dari batas minimum barang tercantum dalam KI-03. Kebutuhan terpenuhi jika seluruh sampel memiliki selisih 0, tidak ada stok negatif sesuai AB-03, dan tidak ada barang yang memenuhi kondisi tersebut tetapi terlewat dari laporan.
 
 ## 10. Isu kualitas data yang diantisipasi
 
