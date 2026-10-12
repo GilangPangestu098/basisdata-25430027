@@ -20,6 +20,8 @@ Dari wawancara, ada tiga masalah yang menunjukkan kebutuhan data: harga barang s
 | PB-04 | Menerima barang dari pemasok | Petugas gudang | Barang datang bersama faktur |
 | PB-05 | Menyusun laporan bulanan | Ketua koperasi | Awal bulan |
 | PB-06 | Menukar poin pada penjualan | Kasir (atas pilihan anggota) | Anggota aktif dengan saldo minimal 50 poin memilih menukar poin saat membayar |
+| PB-07 | Mengelola data pemasok | Petugas gudang | Ada pemasok baru atau data pemasok (telepon, alamat) berubah |
+| PB-08 | Mengubah status keanggotaan | Ketua koperasi | Anggota mengundurkan diri atau tidak lagi memenuhi syarat keanggotaan |
 
 ## 3. Dokumen sumber yang dianalisis
 
@@ -83,7 +85,7 @@ Contoh lengkap: Jumlah Rp29.000, Diskon Rp1.450, Total Rp27.550, poin digunakan 
 | AB-04 | Harga jual yang dipakai pada nota disimpan per baris dan tidak berubah meski harga barang kemudian naik. |
 | AB-05 | NIM anggota unik; pencarian anggota dapat dilakukan lewat nomor anggota atau NIM. |
 | AB-06 | Pesanan pembelian dibuat bila stok kurang dari batas minimum barang tersebut. |
-| AB-07 | Poin loyalitas dihitung berdasarkan Jumlah pada nota, yaitu nilai belanja sebelum Diskon. Setiap kelipatan Rp10.000 menghasilkan 1 poin dan sisa yang kurang dari Rp10.000 dibuang. Contoh: Jumlah Rp29.000 menghasilkan 2 poin; Jumlah Rp59.000 menghasilkan 5 poin, sedangkan jika dihitung dari Total Rp49.000 hanya 4 poin. |
+| AB-07 | Poin loyalitas dihitung berdasarkan Jumlah pada nota, yaitu nilai belanja sebelum Diskon. Setiap kelipatan Rp10.000 menghasilkan 1 poin dan sisa yang kurang dari Rp10.000 dibuang. Contoh: Jumlah Rp29.000 menghasilkan 2 poin; Jumlah Rp40.000 menghasilkan 4 poin, sedangkan jika dihitung dari Total Rp38.000 (setelah Diskon 5% sebesar Rp2.000) hanya 3 poin. |
 | AB-08 | Poin yang diperoleh dari suatu nota baru ditambahkan ke saldo poin anggota setelah transaksi selesai, sehingga poin dari transaksi tersebut tidak dapat digunakan untuk penukaran pada nota yang sama. |
 | AB-09 | Penukaran poin hanya dapat dilakukan jika saldo poin anggota mencukupi untuk jumlah poin yang akan ditukarkan. Jika saldo poin kurang dari jumlah poin yang akan ditukarkan, penukaran ditolak. Contoh: saldo 30 poin dan ingin menukarkan 50 poin, maka penukaran ditolak dan saldo tetap 30 poin. |
 | AB-10 | Setiap 50 poin yang ditukarkan memberikan potongan sebesar Rp5.000. Penukaran hanya dapat dilakukan dalam kelipatan 50 poin. Jumlah poin yang ditukar dipilih anggota saat transaksi, tidak melebihi saldo, dan sistem tidak menukar poin secara otomatis. Contoh: saldo 100 poin, anggota memilih menukarkan 50 poin, maka poin digunakan 50 dan potongan Rp5.000; jika memilih 100 poin, potongan Rp10.000 dan saldo berkurang 100 poin. |
@@ -99,9 +101,9 @@ Contoh lengkap: Jumlah Rp29.000, Diskon Rp1.450, Total Rp27.550, poin digunakan 
 | KI-02 | Lima barang terlaris per bulan berdasarkan qty | Detail penjualan, barang |
 | KI-03 | Barang dengan stok di bawah batas minimum | Barang |
 | KI-04 | Sepuluh anggota dengan belanja terbesar per bulan | Penjualan, detail penjualan, anggota |
-| KI-05 | Laporan saldo poin setiap anggota | no_anggota, nama_anggota, saldo_poin_anggota |
-| KI-06 | Laporan poin yang diperoleh dan digunakan per bulan | no_anggota, nama_anggota, tgl_penjualan, poin_diperoleh_penjualan, poin_digunakan_penjualan |
-| KI-07 | Daftar anggota yang dapat menukar poin, yaitu anggota yang berstatus aktif dan memiliki saldo minimal 50 poin | no_anggota, nama_anggota, status_anggota, saldo_poin_anggota |
+| KI-05 | Laporan saldo poin setiap anggota | Anggota |
+| KI-06 | Laporan poin yang diperoleh dan digunakan per bulan | Penjualan, anggota |
+| KI-07 | Daftar anggota yang dapat menukar poin, yaitu anggota yang berstatus aktif dan memiliki saldo minimal 50 poin | Anggota |
 
 ## 7. Matriks CRUD
 
@@ -115,16 +117,18 @@ Keterangan: C = create (membuat), R = read (membaca), U = update (mengubah), D =
 | PB-04 Terima barang | | U | | | R | U |
 | PB-05 Laporan bulanan | R | R | R | R | | R |
 | PB-06 Tukar poin pada penjualan | R, U | | R, U | R | | |
+| PB-07 Kelola data pemasok | | | | | C, R, U | |
+| PB-08 Ubah status anggota | R, U | | | | | |
 
 Keputusan PB-06: penukaran poin dipertahankan sebagai proses tersendiri, tetapi tidak membuat nota baru. PB-06 menerapkan penukaran pada nota yang sedang dicatat oleh PB-02, sehingga pada Penjualan huruf CRUD-nya R, U: membaca Jumlah dan Diskon untuk memperoleh Total, lalu mengisi poin_digunakan_penjualan dan potongan_poin_penjualan. Anggota R, U karena saldo poin dibaca lalu dikurangi setelah penukaran berhasil, dan Detail R untuk memastikan nilai Jumlah sebagai dasar perhitungan. PB-02 pada Anggota R, U karena membaca status anggota (AB-12) dan menambahkan poin yang diperoleh setelah transaksi selesai (AB-08).
 
 Keputusan PB-01: saat anggota didaftarkan, saldo_poin_anggota diinisialisasi sebesar 0 poin (AB-13).
 
-Catatan: pada kolom Pemasok belum ada proses yang memberi huruf C. Hal ini dibahas pada Titik Analisis 3.
+Keputusan PB-07 dan PB-08 (Titik Analisis 3): pada matriks awal, kolom Pemasok tidak memiliki huruf C, artinya tidak ada proses yang memasukkan data pemasok sehingga PB-03 dan PB-04 akan membaca data yang tidak pernah dibuat. PB-07 ditambahkan agar data pemasok dibuat dan dipelihara oleh petugas gudang. Selain itu, tidak ada proses yang mengubah status aktif anggota, padahal status ini menentukan diskon (AB-02) dan poin (AB-12). PB-08 ditambahkan dengan ketua koperasi sebagai pelaku, sesuai penanggung jawab data anggota pada kamus data.
 
 ## 8. Kamus data awal
 
-Cuplikan kamus data awal Kopma. Kolom penanggung jawab menunjukkan siapa yang bertanggung jawab atas kebenaran data tersebut.
+Cuplikan kamus data awal Kopma, ditambah elemen poin loyalitas dari Latihan E.1. Kolom penanggung jawab menunjukkan siapa yang bertanggung jawab atas kebenaran data tersebut.
 
 | Elemen | Arti | Contoh | Aturan | Penanggung jawab |
 |--------|------|--------|--------|------------------|
@@ -134,6 +138,12 @@ Cuplikan kamus data awal Kopma. Kolom penanggung jawab menunjukkan siapa yang be
 | `no_nota_penjualan` | Nomor nota penjualan | PJ-2609-0142 | Unik per nota | Kasir |
 | `harga_satuan_detail_penjualan` | Harga jual saat transaksi | 4000 | Bilangan bulat >= 0 (rupiah) | Kasir |
 | `stok_barang` | Jumlah barang tersedia | 35 | Bilangan bulat >= 0 (AB-03) | Petugas gudang |
+| `saldo_poin_anggota` | Saldo poin loyalitas anggota saat ini | 27 | Bilangan bulat >= 0; awal 0 (AB-13); bertambah setelah transaksi selesai (AB-08) dan berkurang saat penukaran (AB-10) | Ketua |
+| `poin_diperoleh_penjualan` | Poin yang diperoleh dari satu nota | 2 | Bilangan bulat >= 0; setiap Rp10.000 dari Jumlah = 1 poin, sisa dibuang (AB-07); 0 untuk non-anggota atau anggota tidak aktif (AB-12) | Kasir |
+| `poin_digunakan_penjualan` | Poin yang ditukarkan pada satu nota | 50 | 0 atau kelipatan 50; tidak melebihi saldo (AB-09, AB-10) | Kasir |
+| `potongan_poin_penjualan` | Potongan dari penukaran poin | 5000 | Bilangan bulat rupiah >= 0; 50 poin = Rp5.000; tidak melebihi Total (AB-10, AB-11) | Kasir |
+
+`tagihan_penjualan` tidak dimasukkan ke kamus karena merupakan nilai turunan (Total dikurangi `potongan_poin_penjualan`), sesuai keputusan pada bagian 4.
 
 ## 9. Kebutuhan non-fungsional data
 
